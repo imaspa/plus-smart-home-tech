@@ -35,7 +35,7 @@ public class KafkaEventProducer implements AutoCloseable {
                         event
                 );
 
-        log.debug("Отправка события: {}; хаб: {}; топик: {}", event.getClass().getSimpleName(), hubId, topic);
+        log.info("Отправка события: {}; хаб: {}; топик: {}", event.getClass().getSimpleName(), hubId, topic);
         log.debug("Тело события: {};", record);
         producer.send(record);
     }

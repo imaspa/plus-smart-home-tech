@@ -12,8 +12,6 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.yandex.practicum.telemetry.collector.model.hub.HubEvent;
 import ru.yandex.practicum.telemetry.collector.model.sensor.SensorEvent;
 import ru.yandex.practicum.telemetry.collector.service.handler.HandlerComponent;
-import ru.yandex.practicum.telemetry.collector.service.handler.HubEventHandler;
-import ru.yandex.practicum.telemetry.collector.service.handler.SensorEventHandler;
 
 @Slf4j
 @Validated
@@ -26,22 +24,16 @@ public class EventRestController {
 
     @PostMapping("/sensors")
     public void collectSensorEvent(@Valid @RequestBody SensorEvent request) {
-        log.debug("[REQUEST] sensors: {}", request);
-        SensorEventHandler handler = handlerComponent.getSensorEventHandlers().get(request.getType());
-        if (handler == null) {
-            throw new IllegalArgumentException("Не найден обработчик события: %s".formatted(request.getType()));
-        }
-        handler.handle(request);
+        log.info("[REQUEST] sensors: id sensor: {}; id хаба: {}", request.getId(), request.getHubId());
+        log.debug("[REQUEST] sensors (тело): {}", request);
+        handlerComponent.getSensorHandler(request).handle(request);
     }
 
     @PostMapping("/hubs")
     public void collectHubEvent(@Valid @RequestBody HubEvent request) {
+        log.info("[REQUEST] hubs: id хаба: {}", request.getHubId());
         log.debug("[REQUEST] hubs: {}", request);
-        HubEventHandler handler = handlerComponent.getHubEventHandlers().get(request.getType());
-        if (handler == null) {
-            throw new IllegalArgumentException("Не найден обработчик события: %s".formatted(request.getType()));
-        }
-        handler.handle(request);
+        handlerComponent.getHubHandler(request).handle(request);
     }
 
 }
