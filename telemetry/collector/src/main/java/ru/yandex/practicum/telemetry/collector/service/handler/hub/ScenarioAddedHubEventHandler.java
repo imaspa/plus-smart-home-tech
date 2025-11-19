@@ -1,19 +1,20 @@
 package ru.yandex.practicum.telemetry.collector.service.handler.hub;
 
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.grpc.telemetry.event.DeviceActionProto;
+import ru.yandex.practicum.grpc.telemetry.event.HubEventProto;
+import ru.yandex.practicum.grpc.telemetry.event.ScenarioAddedEventProto;
+import ru.yandex.practicum.grpc.telemetry.event.ScenarioConditionProto;
 import ru.yandex.practicum.kafka.telemetry.event.ActionTypeAvro;
 import ru.yandex.practicum.kafka.telemetry.event.ConditionOperationAvro;
 import ru.yandex.practicum.kafka.telemetry.event.ConditionTypeAvro;
 import ru.yandex.practicum.kafka.telemetry.event.DeviceActionAvro;
 import ru.yandex.practicum.kafka.telemetry.event.ScenarioAddedEventAvro;
 import ru.yandex.practicum.kafka.telemetry.event.ScenarioConditionAvro;
-import ru.yandex.practicum.telemetry.collector.model.constant.HubEventType;
-import ru.yandex.practicum.telemetry.collector.model.hub.DeviceAction;
-import ru.yandex.practicum.telemetry.collector.model.hub.HubEvent;
-import ru.yandex.practicum.telemetry.collector.model.hub.ScenarioCondition;
-import ru.yandex.practicum.telemetry.collector.model.hub.event.ScenarioAddedEvent;
 import ru.yandex.practicum.telemetry.collector.service.KafkaEventProducer;
 import ru.yandex.practicum.telemetry.collector.utils.EnumMapper;
+
+import static ru.yandex.practicum.grpc.telemetry.event.ScenarioConditionProto.ValueCase.BOOL_VALUE;
 
 @Component
 public class ScenarioAddedHubEventHandler extends BaseHubEventHandler<ScenarioAddedEventAvro> {
@@ -23,23 +24,25 @@ public class ScenarioAddedHubEventHandler extends BaseHubEventHandler<ScenarioAd
     }
 
     @Override
-    public HubEventType getMessageType() {
-        return HubEventType.SCENARIO_ADDED;
+    public HubEventProto.PayloadCase getMessageType() {
+        return HubEventProto.PayloadCase.SCENARIO_ADDED;
     }
 
+
     @Override
-    protected ScenarioAddedEventAvro mapToAvro(HubEvent event) {
-        ScenarioAddedEvent _event = (ScenarioAddedEvent) event;
+    protected ScenarioAddedEventAvro mapToAvro(HubEventProto event) {
+        ScenarioAddedEventProto payload = event.getScenarioAdded();
+
         return ScenarioAddedEventAvro.newBuilder()
-                .setName(_event.getName())
+                .setName(payload.getName())
                 .setActions(
-                        _event.getActions()
+                        payload.getActionList()
                                 .stream()
                                 .map(this::mapToAvro)
                                 .toList()
                 )
                 .setConditions(
-                        _event.getConditions()
+                        payload.getConditionList()
                                 .stream()
                                 .map(this::mapToAvro)
                                 .toList()
@@ -47,7 +50,7 @@ public class ScenarioAddedHubEventHandler extends BaseHubEventHandler<ScenarioAd
                 .build();
     }
 
-    private DeviceActionAvro mapToAvro(DeviceAction action) {
+    private DeviceActionAvro mapToAvro(DeviceActionProto action) {
         return DeviceActionAvro.newBuilder()
                 .setSensorId(action.getSensorId())
                 .setType(EnumMapper.map(action.getType(), ActionTypeAvro.class))
@@ -55,12 +58,13 @@ public class ScenarioAddedHubEventHandler extends BaseHubEventHandler<ScenarioAd
                 .build();
     }
 
-    private ScenarioConditionAvro mapToAvro(ScenarioCondition condition) {
+    private ScenarioConditionAvro mapToAvro(ScenarioConditionProto condition) {
         return ScenarioConditionAvro.newBuilder()
                 .setOperation(EnumMapper.map(condition.getOperation(), ConditionOperationAvro.class))
                 .setSensorId(condition.getSensorId())
                 .setType(EnumMapper.map(condition.getType(), ConditionTypeAvro.class))
-                .setValue(condition.getValue())
+                .setValue(condition.getValueCase().equals(BOOL_VALUE) ?
+                        condition.getBoolValue() : condition.getIntValue())
                 .build();
     }
 }

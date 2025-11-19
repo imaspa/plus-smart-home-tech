@@ -26,14 +26,14 @@ public class EventRestController {
     public void collectSensorEvent(@Valid @RequestBody SensorEvent request) {
         log.info("[REQUEST] sensors: id sensor: {}; id хаба: {}", request.getId(), request.getHubId());
         log.debug("[REQUEST] sensors (тело): {}", request);
-        handlerComponent.getSensorHandler(request).handle(request);
+        //handlerComponent.getSensorHandler(request).handle(request);
     }
 
     @PostMapping("/hubs")
     public void collectHubEvent(@Valid @RequestBody HubEvent request) {
         log.info("[REQUEST] hubs: id хаба: {}", request.getHubId());
         log.debug("[REQUEST] hubs: {}", request);
-        handlerComponent.getHubHandler(request).handle(request);
+        //handlerComponent.getHubHandler(request).handle(request);
     }
 
 }
