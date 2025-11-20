@@ -9,8 +9,7 @@ import lombok.ToString;
 
 @Entity
 @ToString
-@Getter
-@Setter
+@Getter @Setter
 @Table(name = "sensors")
 public class Sensor {
     @Id

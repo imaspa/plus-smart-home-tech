@@ -1,5 +1,14 @@
 package ru.yandex.practicum.telemetry.analyzer.dal.entity;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.MapKeyColumn;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import jakarta.persistence.Id;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -7,9 +16,9 @@ import java.beans.Transient;
 import java.util.HashMap;
 import java.util.Map;
 
+
 @Entity
-@Getter
-@Setter
+@Getter @Setter
 @Table(name = "scenarios")
 public class Scenario {
 

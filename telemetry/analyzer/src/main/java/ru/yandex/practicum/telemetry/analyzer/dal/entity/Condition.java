@@ -1,15 +1,12 @@
 package ru.yandex.practicum.telemetry.analyzer.dal.entity;
 
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import ru.yandex.practicum.kafka.telemetry.event.ConditionTypeAvro;
-import sun.jvm.hotspot.debugger.cdbg.EnumType;
-
-import java.beans.Transient;
 
 @Entity
-@Getter
-@Setter
+@Getter @Setter
 @Table(name = "conditions")
 public class Condition {
 

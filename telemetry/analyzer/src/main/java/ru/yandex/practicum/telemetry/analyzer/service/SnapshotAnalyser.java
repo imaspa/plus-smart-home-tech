@@ -8,14 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.grpc.telemetry.event.ActionTypeProto;
 import ru.yandex.practicum.grpc.telemetry.event.DeviceActionProto;
 import ru.yandex.practicum.grpc.telemetry.event.DeviceActionRequest;
-import ru.yandex.practicum.kafka.telemetry.event.ActionTypeAvro;
-import ru.yandex.practicum.kafka.telemetry.event.ClimateSensorAvro;
-import ru.yandex.practicum.kafka.telemetry.event.LightSensorAvro;
-import ru.yandex.practicum.kafka.telemetry.event.MotionSensorAvro;
-import ru.yandex.practicum.kafka.telemetry.event.SensorStateAvro;
-import ru.yandex.practicum.kafka.telemetry.event.SensorsSnapshotAvro;
-import ru.yandex.practicum.kafka.telemetry.event.SwitchSensorAvro;
-import ru.yandex.practicum.kafka.telemetry.event.TemperatureSensorAvro;
+import ru.yandex.practicum.kafka.telemetry.event.*;
 import ru.yandex.practicum.telemetry.analyzer.dal.entity.Action;
 import ru.yandex.practicum.telemetry.analyzer.dal.entity.Condition;
 import ru.yandex.practicum.telemetry.analyzer.dal.entity.Scenario;
@@ -25,12 +18,7 @@ import java.time.Instant;
 import java.util.Map;
 
 import static ru.yandex.practicum.grpc.telemetry.hubrouter.HubRouterControllerGrpc.HubRouterControllerBlockingStub;
-import static ru.yandex.practicum.kafka.telemetry.event.ConditionTypeAvro.CO2LEVEL;
-import static ru.yandex.practicum.kafka.telemetry.event.ConditionTypeAvro.HUMIDITY;
-import static ru.yandex.practicum.kafka.telemetry.event.ConditionTypeAvro.LUMINOSITY;
-import static ru.yandex.practicum.kafka.telemetry.event.ConditionTypeAvro.MOTION;
-import static ru.yandex.practicum.kafka.telemetry.event.ConditionTypeAvro.SWITCH;
-import static ru.yandex.practicum.kafka.telemetry.event.ConditionTypeAvro.TEMPERATURE;
+import static ru.yandex.practicum.kafka.telemetry.event.ConditionTypeAvro.*;
 
 @Slf4j
 @Service
@@ -71,38 +59,38 @@ public class SnapshotAnalyser {
 
         final SensorStateAvro state = snapshot.getSensorsState().get(sensorId);
 
-        if (state.getData() instanceof ClimateSensorAvro data) {
-            if (condition.getType().equals(TEMPERATURE)) {
+        if(state.getData() instanceof ClimateSensorAvro data) {
+            if(condition.getType().equals(TEMPERATURE)) {
                 return condition.check(data.getTemperatureC());
             }
-            if (condition.getType().equals(CO2LEVEL)) {
+            if(condition.getType().equals(CO2LEVEL)) {
                 return condition.check(data.getCo2Level());
             }
-            if (condition.getType().equals((HUMIDITY))) {
+            if(condition.getType().equals((HUMIDITY))) {
                 return condition.check(data.getHumidity());
             }
         }
 
-        if (state.getData() instanceof LightSensorAvro data) {
-            if (condition.getType().equals(LUMINOSITY)) {
+        if(state.getData() instanceof LightSensorAvro data) {
+            if(condition.getType().equals(LUMINOSITY)) {
                 return condition.check(data.getLuminosity());
             }
         }
 
-        if (state.getData() instanceof MotionSensorAvro data) {
-            if (condition.getType().equals(MOTION)) {
+        if(state.getData() instanceof MotionSensorAvro data) {
+            if(condition.getType().equals(MOTION)) {
                 return condition.check(data.getMotion() ? 1 : 0);
             }
         }
 
-        if (state.getData() instanceof TemperatureSensorAvro data) {
-            if (condition.getType().equals(TEMPERATURE)) {
+        if(state.getData() instanceof TemperatureSensorAvro data) {
+            if(condition.getType().equals(TEMPERATURE)) {
                 return condition.check(data.getTemperatureC());
             }
         }
 
-        if (state.getData() instanceof SwitchSensorAvro data) {
-            if (condition.getType().equals(SWITCH)) {
+        if(state.getData() instanceof SwitchSensorAvro data) {
+            if(condition.getType().equals(SWITCH)) {
                 return condition.check(data.getState() ? 1 : 0);
             }
         }
@@ -145,7 +133,7 @@ public class SnapshotAnalyser {
 
     private ActionTypeProto map(ActionTypeAvro avro) {
         for (ActionTypeProto value : ActionTypeProto.values()) {
-            if (value.name().equalsIgnoreCase(avro.name())) {
+            if(value.name().equalsIgnoreCase(avro.name())) {
                 return value;
             }
         }

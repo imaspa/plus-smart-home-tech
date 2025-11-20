@@ -9,7 +9,6 @@ import ru.yandex.practicum.telemetry.analyzer.service.SnapshotProcessor;
 
 @SpringBootApplication
 @ConfigurationPropertiesScan
-
 public class Analyzer {
     public static void main(String[] args) {
         ConfigurableApplicationContext context =
@@ -30,5 +29,4 @@ public class Analyzer {
         // снимков состояния датчиков
         snapshotProcessor.start();
     }
-
 }

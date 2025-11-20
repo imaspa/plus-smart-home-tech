@@ -1,13 +1,12 @@
 package ru.yandex.practicum.telemetry.analyzer.dal.entity;
 
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import ru.yandex.practicum.kafka.telemetry.event.ActionTypeAvro;
-import sun.jvm.hotspot.debugger.cdbg.EnumType;
 
 @Entity
-@Getter
-@Setter
+@Getter @Setter
 @Table(name = "actions")
 public class Action {
 

@@ -66,7 +66,7 @@ public class SnapshotProcessor {
             while (true) {
                 ConsumerRecords<String, SensorsSnapshotAvro> records = consumer.poll(pollTimeout);
 
-                if (!records.isEmpty()) {
+                if(!records.isEmpty()) {
                     int count = 0;
                     for (ConsumerRecord<String, SensorsSnapshotAvro> record : records) {
                         // Обрабатываем очередную запись
@@ -103,9 +103,9 @@ public class SnapshotProcessor {
                 new OffsetAndMetadata(record.offset() + 1)
         );
 
-        if (count % 100 == 0) {
+        if(count % 100 == 0) {
             consumer.commitAsync(currentOffsets, (offsets, exception) -> {
-                if (exception != null) {
+                if(exception != null) {
                     log.warn("Ошибка во время фиксации оффсетов: {}", offsets, exception);
                 }
             });

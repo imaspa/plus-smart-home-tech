@@ -7,7 +7,7 @@ public enum ConditionOperation implements Operation {
     EQUALS {
         @Override
         public boolean apply(Integer left, Integer right) {
-            if (left != null && right != null) {
+            if(left != null && right != null) {
                 return left.compareTo(right) == 0;
             }
             return false;
@@ -16,7 +16,7 @@ public enum ConditionOperation implements Operation {
     GREATER_THAN {
         @Override
         public boolean apply(Integer left, Integer right) {
-            if (left != null && right != null) {
+            if(left != null && right != null) {
                 return left.compareTo(right) > 0;
             }
             return false;
@@ -25,7 +25,7 @@ public enum ConditionOperation implements Operation {
     LOWER_THAN {
         @Override
         public boolean apply(Integer left, Integer right) {
-            if (left != null && right != null) {
+            if(left != null && right != null) {
                 return left.compareTo(right) < 0;
             }
             return false;
@@ -34,7 +34,7 @@ public enum ConditionOperation implements Operation {
 
     public static ConditionOperation from(ConditionOperationAvro operation) {
         for (ConditionOperation value : values()) {
-            if (value.name().equalsIgnoreCase(operation.name())) {
+            if(value.name().equalsIgnoreCase(operation.name())) {
                 return value;
             }
         }
