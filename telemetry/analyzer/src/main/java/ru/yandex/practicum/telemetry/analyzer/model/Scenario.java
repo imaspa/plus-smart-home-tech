@@ -1,14 +1,14 @@
-package ru.yandex.practicum.telemetry.analyzer.dal.entity;
+package ru.yandex.practicum.telemetry.analyzer.model;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.MapKeyColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import jakarta.persistence.Id;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -18,7 +18,8 @@ import java.util.Map;
 
 
 @Entity
-@Getter @Setter
+@Getter
+@Setter
 @Table(name = "scenarios")
 public class Scenario {
 
@@ -49,6 +50,8 @@ public class Scenario {
             joinColumns = @JoinColumn(name = "scenario_id"),
             inverseJoinColumns = @JoinColumn(name = "action_id"))
     private Map<String, Action> actions = new HashMap<>();
+
+
 
     @Transient
     public void addCondition(String sensorId, Condition condition) {
