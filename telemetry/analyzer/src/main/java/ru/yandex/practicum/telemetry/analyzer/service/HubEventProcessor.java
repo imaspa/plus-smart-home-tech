@@ -6,11 +6,14 @@ import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.errors.WakeupException;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.kafka.telemetry.event.*;
+import ru.yandex.practicum.kafka.telemetry.event.DeviceAddedEventAvro;
+import ru.yandex.practicum.kafka.telemetry.event.DeviceRemovedEventAvro;
+import ru.yandex.practicum.kafka.telemetry.event.HubEventAvro;
+import ru.yandex.practicum.kafka.telemetry.event.ScenarioAddedEventAvro;
+import ru.yandex.practicum.kafka.telemetry.event.ScenarioRemovedEventAvro;
 import ru.yandex.practicum.telemetry.analyzer.configuration.KafkaConfig;
-import ru.yandex.practicum.telemetry.analyzer.dal.entity.Sensor;
-import ru.yandex.practicum.telemetry.analyzer.dal.sevice.ScenarioService;
-import ru.yandex.practicum.telemetry.analyzer.dal.sevice.SensorService;
+import ru.yandex.practicum.telemetry.analyzer.configuration.KafkaConfigConsumer;
+import ru.yandex.practicum.telemetry.analyzer.model.Sensor;
 
 import java.time.Duration;
 import java.util.List;
@@ -29,21 +32,20 @@ public class HubEventProcessor implements Runnable {
         this.sensorService = sensorService;
         this.scenarioService = scenarioService;
 
-        final KafkaConfig.ConsumerConfig consumerConfig =
-                config.getConsumers().get(this.getClass().getSimpleName());
+        final KafkaConfigConsumer consumerConfig = config.getConsumers().get(this.getClass().getSimpleName());
         this.consumer = new KafkaConsumer<>(consumerConfig.getProperties());
         this.topics = consumerConfig.getTopics();
         this.pollTimeout = consumerConfig.getPollTimeout();
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            log.info("Сработал хук на завершение JVM. Прерываю работу консьюмера событий от хабов. ");
+            log.info("[Analyzer Hub][JVM STOP]. Остановка Consumer хабов ");
             consumer.wakeup();
         }));
     }
 
     @Override
     public void run() {
-        log.trace("Подписываюсь на топики {}", topics);
+        log.info("[Analyzer Hub] Subscribing to topic: {}", topics);
         consumer.subscribe(topics);
         try {
             while (true) {
@@ -52,20 +54,17 @@ public class HubEventProcessor implements Runnable {
                     for (ConsumerRecord<String, HubEventAvro> record : records) {
                         processEvent(record.value());
                     }
-                    // Добавление/удаление устройств и сценариев - редкие события.
-                    // Поэтому поток сообщений будет не интенсивный.
-                    // Так что имеет смысл фиксировать смещения синхронно.
                     consumer.commitSync();
                 }
             }
         } catch (WakeupException e) {
-            // завершаем работу консьюмера (в блоке final)
         } catch (Exception e) {
-            log.error("Ошибка во время обработки событий от хабов", e);
+            log.error("[Analyzer Hub] [PROCESSING ERROR]", e);
         } finally {
             consumer.close();
         }
     }
+
 
     private void processEvent(HubEventAvro hubEvent) {
         String hubId = hubEvent.getHubId();
@@ -74,14 +73,14 @@ public class HubEventProcessor implements Runnable {
             case DeviceRemovedEventAvro dre -> processEvent(hubId, dre);
             case ScenarioAddedEventAvro sae -> processEvent(hubId, sae);
             case ScenarioRemovedEventAvro sre -> processEvent(hubId, sre);
-            default -> log.warn("Получено событие неизвестного типа {}", hubEvent);
+            default -> log.warn("[Analyzer Hub] [PROCESSEVENT ALARM] неизвестного событие: {}", hubEvent);
         }
     }
 
     private void processEvent(String hubId, DeviceAddedEventAvro event) {
         Optional<Sensor> maybeAdded = sensorService.findByIdAndHubId(hubId, event.getId());
         if (maybeAdded.isPresent()) {
-            log.info("Устройство с id [{}] уже зарегистрировано в хабе [{}]", event.getId(), hubId);
+            log.debug("[Analyzer Hub][SENSOR ALARM] уже зарегистрирован ид: {}; хаб: {}", event.getId(), hubId);
             return;
         }
 
@@ -89,26 +88,24 @@ public class HubEventProcessor implements Runnable {
         sensor.setHubId(hubId);
         sensor.setId(event.getId());
 
-        log.debug("В хабе [{}] зарегистрирован новый датчик: [{}]", hubId, event.getId());
+        log.debug("[Analyzer Hub][SENSOR ADD] ид: {}; хаб: {}", event.getId(), hubId);
         sensorService.save(sensor);
     }
 
     private void processEvent(String hubId, DeviceRemovedEventAvro event) {
-        log.debug("Удаляю датчик [{}] из хаба [{}]", event.getId(), hubId);
+        log.debug("[Analyzer Hub][SENSOR DEL] ид: {}; хаб: {}", event.getId(), hubId);
         sensorService
                 .findByIdAndHubId(event.getId(), hubId)
                 .ifPresent(sensorService::delete);
     }
 
     private void processEvent(String hubId, ScenarioAddedEventAvro event) {
-        log.info("Получил запрос на добавление нового сценария {} для хаба {}",
-                event.getName(), hubId);
-
+        log.info("[Analyzer Hub][SCENARIO ADD] наименование: {}; хаб: {}", event.getName(), hubId);
         scenarioService.save(event, hubId);
     }
 
     private void processEvent(String hubId, ScenarioRemovedEventAvro event) {
-        log.info("Получил запрос на удаление сценария {} из хаба {}", event.getName(), hubId);
-        scenarioService.delete(event.getName(), hubId);
+        log.info("[Analyzer Hub][SCENARIO DEL] наименование: {}; хаб: {}", event.getName(), hubId);
+        scenarioService.deleteScenario(event.getName(), hubId);
     }
 }

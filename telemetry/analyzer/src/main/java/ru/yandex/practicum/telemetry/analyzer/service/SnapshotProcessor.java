@@ -12,25 +12,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.kafka.telemetry.event.SensorsSnapshotAvro;
 import ru.yandex.practicum.telemetry.analyzer.configuration.KafkaConfig;
+import ru.yandex.practicum.telemetry.analyzer.configuration.KafkaConfigConsumer;
 
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Класс AggregationStarter, ответственный за запуск агрегации данных.
- */
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class SnapshotProcessor {
     private final SnapshotAnalyser analyser;
 
-    // Хранит текущий обработанный оффсет для каждой партиции и топика
     private final Map<TopicPartition, OffsetAndMetadata> currentOffsets = new HashMap<>();
 
-    // Консьюмер для получения снапшотов
     private final KafkaConsumer<String, SensorsSnapshotAvro> consumer;
     private final List<String> topics;
     private final Duration pollTimeout;
@@ -39,74 +35,62 @@ public class SnapshotProcessor {
     public SnapshotProcessor(SnapshotAnalyser analyser, KafkaConfig kafkaConfig) {
         this.analyser = analyser;
 
-        final KafkaConfig.ConsumerConfig consumerConfig =
-                kafkaConfig.getConsumers().get(this.getClass().getSimpleName());
+        final KafkaConfigConsumer consumerConfig = kafkaConfig.getConsumers().get(this.getClass().getSimpleName());
 
         this.consumer = new KafkaConsumer<>(consumerConfig.getProperties());
         this.topics = consumerConfig.getTopics();
         this.pollTimeout = consumerConfig.getPollTimeout();
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            log.info("Сработал хук на завершение JVM. Прерываю работу консьюмера снапшотов. ");
+            log.info("[Analyzer SnapShot][JVM STOP]. Остановка Consumer снапшотов ");
             consumer.wakeup();
         }));
     }
 
-    /**
-     * Метод для начала процесса получения и анализа снапшотов.
-     * Подписывается на топики для получения снапшотов. Для каждого снапшота проверяет,
-     * подходит ли состояние датчиков под имеющиеся сценарии. Если подходит, то выполняет
-     * действия заложенные в сценарий. Путём отправки команд по grpc в Hub Router.
-     */
-    public void start() {
+    public void processorSnapshot() {
         try {
-            log.trace("Подписываюсь на топик \"{}\" для получения снапшотов", topics);
+            log.info("[Analyzer SnapShot] Subscribing to topic: {}", topics);
             consumer.subscribe(topics);
 
             while (true) {
                 ConsumerRecords<String, SensorsSnapshotAvro> records = consumer.poll(pollTimeout);
 
-                if(!records.isEmpty()) {
+                if (!records.isEmpty()) {
                     int count = 0;
                     for (ConsumerRecord<String, SensorsSnapshotAvro> record : records) {
-                        // Обрабатываем очередную запись
                         analyser.process(record.value());
-
-                        // Фиксируем оффсеты обработанных записей, если нужно
-                        manageOffsets(record, count++);
+                        trackAndCommitOffset(record, count++);
                     }
-                    // Фиксируем максимальный оффсет обработанных записей
                     consumer.commitAsync();
                 }
             }
-
         } catch (WakeupException ignored) {
-            // игнорируем - закрываем консьюмер и продюсер в блоке finally
         } catch (Exception e) {
-            log.error("Ошибка во время обработки событий от датчиков", e);
+            log.error("[Analyzer SnapShot] [PROCESSING ERROR]", e);
         } finally {
-            // Закрываем консьюмер, но перед этим убеждаемся,
-            // что все оффсеты обработанных сообщений зафиксированы
-            try {
-                consumer.commitSync(currentOffsets);
-            } finally {
-                log.info("Закрываем консьюмер");
-                consumer.close();
-            }
+            shutdownResources();
         }
     }
 
-    private void manageOffsets(ConsumerRecord<?, ?> record, int count) {
-        // обновляем текущий оффсет для топика-партиции
+    private void shutdownResources() {
+        try {
+            consumer.commitSync(currentOffsets);
+        } finally {
+            log.info("[Analyzer SnapShot] Closing Kafka clients");
+            consumer.close();
+        }
+    }
+
+    private void trackAndCommitOffset(ConsumerRecord<?, ?> record, int count) {
         currentOffsets.put(
                 new TopicPartition(record.topic(), record.partition()),
                 new OffsetAndMetadata(record.offset() + 1)
         );
 
-        if(count % 100 == 0) {
+        if (count % 100 == 0) {
             consumer.commitAsync(currentOffsets, (offsets, exception) -> {
-                if(exception != null) {
-                    log.warn("Ошибка во время фиксации оффсетов: {}", offsets, exception);
+                if (exception != null) {
+                    log.warn("[Analyzer SnapShot] [ERR] trackAndCommitOffset смещение: {}", offsets, exception);
                 }
             });
         }

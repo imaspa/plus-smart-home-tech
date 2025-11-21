@@ -2,9 +2,9 @@ spring:
   #Db connection
   datasource:
     driverClassName: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/test
-    username: postgres
-    password: test
+    url: jdbc:postgresql://localhost:5433/postgres
+    username: admin
+    password: 100
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     properties.hibernate:
@@ -51,7 +51,4 @@ analyzer:
           "group.id": "telemetry.analyzer.hub"
         topics:
           - "telemetry.hubs.v1"
-        # поток событий от хабов будет не высокой интенсивности,
-        # поэтому можно увеличить таймаут ожидания и
-        # повысить тем самым пропускную способность
         poll-timeout: 2000ms

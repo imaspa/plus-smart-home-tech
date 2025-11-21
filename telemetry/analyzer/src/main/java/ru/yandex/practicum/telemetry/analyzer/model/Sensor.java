@@ -1,4 +1,4 @@
-package ru.yandex.practicum.telemetry.analyzer.dal.entity;
+package ru.yandex.practicum.telemetry.analyzer.model;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -9,7 +9,8 @@ import lombok.ToString;
 
 @Entity
 @ToString
-@Getter @Setter
+@Getter
+@Setter
 @Table(name = "sensors")
 public class Sensor {
     @Id
