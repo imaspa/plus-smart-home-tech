@@ -2,19 +2,14 @@ package ru.yandex.practicum.telemetry.aggregator;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
-import org.springframework.context.ConfigurableApplicationContext;
-import ru.yandex.practicum.telemetry.aggregator.service.SensorEventsAggregator;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import ru.yandex.practicum.telemetry.aggregator.config.KafkaConfig;
 
 @SpringBootApplication
-@ConfigurationPropertiesScan
+@EnableConfigurationProperties(KafkaConfig.class)
 public class Aggregator {
 
     public static void main(String[] args) {
-        ConfigurableApplicationContext context = SpringApplication.run(Aggregator.class, args);
-
-        SensorEventsAggregator aggregator = context.getBean(SensorEventsAggregator.class);
-        aggregator.processSensorEvents();
-
+        SpringApplication.run(Aggregator.class, args);
     }
 }

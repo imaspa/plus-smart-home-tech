@@ -1,7 +1,6 @@
 package ru.yandex.practicum.telemetry.analyzer.service;
 
 import com.google.protobuf.Timestamp;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.stereotype.Service;
@@ -13,7 +12,6 @@ import ru.yandex.practicum.kafka.telemetry.event.ActionTypeAvro;
 import ru.yandex.practicum.kafka.telemetry.event.ClimateSensorAvro;
 import ru.yandex.practicum.kafka.telemetry.event.LightSensorAvro;
 import ru.yandex.practicum.kafka.telemetry.event.MotionSensorAvro;
-import ru.yandex.practicum.kafka.telemetry.event.SensorStateAvro;
 import ru.yandex.practicum.kafka.telemetry.event.SensorsSnapshotAvro;
 import ru.yandex.practicum.kafka.telemetry.event.SwitchSensorAvro;
 import ru.yandex.practicum.kafka.telemetry.event.TemperatureSensorAvro;
@@ -27,8 +25,6 @@ import java.util.Map;
 import java.util.Optional;
 
 import static ru.yandex.practicum.grpc.telemetry.hubrouter.HubRouterControllerGrpc.HubRouterControllerBlockingStub;
-import static ru.yandex.practicum.kafka.telemetry.event.ConditionTypeAvro.CO2LEVEL;
-import static ru.yandex.practicum.kafka.telemetry.event.ConditionTypeAvro.HUMIDITY;
 import static ru.yandex.practicum.kafka.telemetry.event.ConditionTypeAvro.LUMINOSITY;
 import static ru.yandex.practicum.kafka.telemetry.event.ConditionTypeAvro.MOTION;
 import static ru.yandex.practicum.kafka.telemetry.event.ConditionTypeAvro.SWITCH;
