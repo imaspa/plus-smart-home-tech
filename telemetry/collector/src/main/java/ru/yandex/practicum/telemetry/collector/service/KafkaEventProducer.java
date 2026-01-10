@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.specific.SpecificRecordBase;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.clients.producer.RecordMetadata;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.telemetry.collector.configuration.KafkaConfig;
 import ru.yandex.practicum.telemetry.collector.configuration.TopicType;
@@ -11,6 +12,8 @@ import ru.yandex.practicum.telemetry.collector.configuration.TopicType;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.EnumMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 @Slf4j
 @Component
@@ -35,9 +38,19 @@ public class KafkaEventProducer implements AutoCloseable {
                         event
                 );
 
-        log.info("Отправка события: {}; хаб: {}; топик: {}", event.getClass().getSimpleName(), hubId, topic);
-        log.debug("Тело события: {};", record);
-        producer.send(record);
+        log.info("[SEND]: {}; хаб: {}; топик: {}", event.getClass().getSimpleName(), hubId, topic);
+        log.debug("[SEND BODY]: {};", record);
+        Future<RecordMetadata> futureResult = producer.send(record);
+
+        String eventClass = event.getClass().getSimpleName();
+        producer.flush();
+        try {
+            RecordMetadata metadata = futureResult.get();
+            log.info("[SEND OK] {}; топик {} в партицию {} со смещением {}",
+                    eventClass, metadata.topic(), metadata.partition(), metadata.offset());
+        } catch (InterruptedException | ExecutionException e) {
+            log.warn("[SEND ERR] {}; топик {}", eventClass, topic, e);
+        }
     }
 
     @Override
