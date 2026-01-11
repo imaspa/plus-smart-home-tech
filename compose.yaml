@@ -34,14 +34,17 @@ services:
                              --bootstrap-server kafka:29092'"
     init: true
 
-  postgres:
+  db_analyzer:
     image: postgres:16.1
-    container_name: postgres
+    container_name: db_analyzer
     hostname: postgres
     environment:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: 100
       POSTGRES_DB: telemetry_analyzer
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
     healthcheck:
       test: pg_isready -q -d $$POSTGRES_DB -U $$POSTGRES_USER
       timeout: 5s
@@ -49,5 +52,60 @@ services:
       retries: 10
     ports:
       - "5433:5432"
+
+  db_cart:
+    image: postgres:16.1
+    container_name: db_cart
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: 100
+      POSTGRES_DB: cart
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+    healthcheck:
+      test: pg_isready -q -d $$POSTGRES_DB -U $$POSTGRES_USER
+      timeout: 5s
+      interval: 5s
+      retries: 10
+    ports:
+      - "5434:5432"
+
+  db_store:
+    image: postgres:16.1
+    container_name: db_store
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: 100
+      POSTGRES_DB: store
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+    healthcheck:
+      test: pg_isready -q -d $$POSTGRES_DB -U $$POSTGRES_USER
+      timeout: 5s
+      interval: 5s
+      retries: 10
+    ports:
+      - "5435:5432"
+
+  db_warehouse:
+    image: postgres:16.1
+    container_name: db_warehouse
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: 100
+      POSTGRES_DB: warehouse
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+    healthcheck:
+      test: pg_isready -q -d $$POSTGRES_DB -U $$POSTGRES_USER
+      timeout: 5s
+      interval: 5s
+      retries: 10
+    ports:
+      - "5436:5432"
+
 
 
