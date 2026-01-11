@@ -11,6 +11,7 @@ import ru.yandex.practicum.interaction.api.dto.cart.ShoppingCartDto;
 import ru.yandex.practicum.interaction.api.dto.warehouse.BookedProductsDto;
 import ru.yandex.practicum.interaction.api.exception.BadRequestException;
 import ru.yandex.practicum.interaction.api.exception.NotFoundException;
+import ru.yandex.practicum.interaction.api.feign.client.WarehouseFeignClient;
 import ru.yandex.practicum.shopping.cart.core.model.Cart;
 
 import java.util.HashMap;
@@ -25,7 +26,7 @@ public class CartService {
     private final CartRepository repository;
     private final CartMapper mapper;
 
-    private final WarehouseClient warehouseClient;
+    private final WarehouseFeignClient warehouseClient;
 
     @Transactional
     public ShoppingCartDto getCart(String username) {

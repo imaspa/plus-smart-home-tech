@@ -1,7 +1,6 @@
-package ru.yandex.practicum.shopping.cart.core;
+package ru.yandex.practicum.interaction.api.feign.contract;
 
 import jakarta.validation.Valid;
-import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -12,22 +11,16 @@ import ru.yandex.practicum.interaction.api.dto.warehouse.AddressDto;
 import ru.yandex.practicum.interaction.api.dto.warehouse.BookedProductsDto;
 import ru.yandex.practicum.interaction.api.dto.warehouse.NewProductInWarehouseRequestDto;
 
-@FeignClient(name = "warehouse", path = "/api/v1")
-public interface WarehouseClient extends ru.yandex.practicum.interaction.api.feign.WarehouseClient {
-
-    @Override
-    @PutMapping("/warehouse")
+public interface WarehouseFeignContract {
+    @PutMapping
     void addProduct(@RequestBody @Valid NewProductInWarehouseRequestDto newProductInWarehouseRequestDto);
 
-    @Override
-    @PostMapping("/warehouse/check")
+    @PostMapping("/check")
     BookedProductsDto checkQuantity(@RequestBody @Valid ShoppingCartDto shoppingCartDto);
 
-    @Override
-    @PostMapping("/warehouse/add")
-    void updateProduct(@RequestBody AddProductToWarehouseRequestDto addProductToWarehouseRequestDto);
+    @PostMapping("/add")
+    void updateProduct(@RequestBody @Valid AddProductToWarehouseRequestDto addProductToWarehouseRequestDto);
 
-    @Override
-    @GetMapping("/warehouse/address")
+    @GetMapping("/address")
     AddressDto getWarehouseAddress();
 }
