@@ -16,6 +16,7 @@ import ru.yandex.practicum.interaction.api.constant.store.QuantityState;
 import ru.yandex.practicum.interaction.api.dto.store.ProductDto;
 import ru.yandex.practicum.interaction.api.feign.contract.StoreFeignContract;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -53,5 +54,10 @@ public class ProductController implements StoreFeignContract {
     @Override
     public ProductDto getProductById(@PathVariable @NotNull UUID productId) {
         return productService.getProductById(productId);
+    }
+
+    @Override
+    public List<ProductDto> getProductsByIds(List<UUID> productIds) {
+        return productService.getProductsByIds(productIds);
     }
 }

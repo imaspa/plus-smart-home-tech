@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import ru.yandex.practicum.interaction.api.dto.warehouse.DimensionDto;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @Entity
@@ -30,10 +31,10 @@ public class ProductStorage {
     private Boolean fragile;
 
     @Embedded
-    private DimensionDto dimensionDto;
+    private DimensionDto dimension;
 
-    @Column(name = "weight", nullable = false)
-    private Double weight;
+    @Column(name = "weight", nullable = false, precision = 10, scale = 3)
+    private BigDecimal weight;
 
     @Column(name = "quantity")
     private Long quantity = 0L;

@@ -18,6 +18,6 @@ public class ChangeProductQuantityRequestDto {
     private UUID productId;
 
     @NotNull(message = "Количество необходимо указать")
-    @Min(value = 0, message = "Количество должно быть не отрицательное")
+    @Min(value = 0, message = "Количество должно быть положительным числом или 0")
     private Long newQuantity;
 }

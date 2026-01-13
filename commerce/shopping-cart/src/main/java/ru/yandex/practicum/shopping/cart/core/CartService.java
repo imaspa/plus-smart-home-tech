@@ -128,4 +128,10 @@ public class CartService {
         newProducts.forEach((productId, quantity) ->
                 cart.getProducts().merge(productId, quantity, Long::sum));
     }
+
+    public String getUsernameById(UUID cartId) {
+        Cart cart = repository.findById(cartId)
+                .orElseThrow(() -> new NotFoundException("Корзина с таким ID не существует: {}" + cartId));
+        return cart.getUsername();
+    }
 }

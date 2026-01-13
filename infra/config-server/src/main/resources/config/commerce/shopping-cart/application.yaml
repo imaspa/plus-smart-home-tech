@@ -29,6 +29,3 @@ feign:
         readTimeout: 5000
         loggerLevel: basic
 
-logging:
-  level:
-    ru.practicum.shopping.cart.feign.client: DEBUG

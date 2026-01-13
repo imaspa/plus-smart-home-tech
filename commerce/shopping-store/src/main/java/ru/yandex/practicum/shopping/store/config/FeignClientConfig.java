@@ -1,4 +1,4 @@
-package ru.yandex.practicum.shopping.cart.core.config;
+package ru.yandex.practicum.shopping.store.config;
 
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Configuration;

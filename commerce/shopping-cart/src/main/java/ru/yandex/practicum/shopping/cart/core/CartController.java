@@ -50,4 +50,9 @@ public class CartController implements CartFeignContract {
                                                  @RequestBody @Valid ChangeProductQuantityRequestDto requestDto) {
         return cartService.updateProductQuantity(username, requestDto);
     }
+
+    @Override
+    public String getUsernameById(@NotNull UUID cartId) {
+        return cartService.getUsernameById(cartId);
+    }
 }

@@ -1,12 +1,14 @@
 package ru.yandex.practicum.interaction.api.dto.warehouse;
 
 import jakarta.persistence.Embeddable;
-import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.math.BigDecimal;
 
 @Data
 @AllArgsConstructor
@@ -15,14 +17,14 @@ import lombok.NoArgsConstructor;
 @Embeddable
 public class DimensionDto {
     @NotNull(message = "Необходимо указать ширину")
-    @Min(value = 1, message = "минимальное значение 1")
-    private Double width;
+    @DecimalMin(value = "1.000", message = "Значение должно быть более 1")
+    private BigDecimal width;
 
     @NotNull(message = "Необходимо указать высоту")
-    @Min(value = 1, message = "минимальное значение 1")
-    private Double height;
+    @DecimalMin(value = "1.000", message = "Значение должно быть более 1")
+    private BigDecimal height;
 
     @NotNull(message = "Необходимо указать глубину")
-    @Min(value = 1, message = "минимальное значение 1")
-    private Double depth;
+    @DecimalMin(value = "1.000", message = "Значение должно быть более 1")
+    private BigDecimal depth;
 }
