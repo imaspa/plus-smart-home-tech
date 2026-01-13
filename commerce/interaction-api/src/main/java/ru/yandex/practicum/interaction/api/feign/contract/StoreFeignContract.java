@@ -14,6 +14,7 @@ import ru.yandex.practicum.interaction.api.constant.store.ProductCategory;
 import ru.yandex.practicum.interaction.api.constant.store.QuantityState;
 import ru.yandex.practicum.interaction.api.dto.store.ProductDto;
 
+import java.util.List;
 import java.util.UUID;
 
 public interface StoreFeignContract {
@@ -34,4 +35,7 @@ public interface StoreFeignContract {
 
     @GetMapping("/{productId}")
     ProductDto getProductById(@PathVariable @NotNull UUID productId);
+
+    @PostMapping("/products-by-ids")
+    List<ProductDto> getProductsByIds(@RequestBody List<UUID> productIds);
 }

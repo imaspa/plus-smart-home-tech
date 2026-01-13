@@ -1,4 +1,4 @@
-package ru.yandex.practicum.warehouse.core.config;
+package ru.yandex.practicum.warehouse.config;
 
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Configuration;

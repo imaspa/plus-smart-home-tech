@@ -107,5 +107,57 @@ services:
     ports:
       - "5436:5432"
 
+  db_delivery:
+    image: postgres:16.1
+    container_name: postgres-delivery
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: 100
+      POSTGRES_DB: delivery
+    ports:
+      - "5437:5432"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+    healthcheck:
+      test: pg_isready -q -d $$POSTGRES_DB -U $$POSTGRES_USER
+      timeout: 5s
+      interval: 5s
+      retries: 10
 
+  db_order:
+    image: postgres:16.1
+    container_name: postgres-order
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: 100
+      POSTGRES_DB: order
+    ports:
+      - "5438:5432"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+    healthcheck:
+      test: pg_isready -q -d $$POSTGRES_DB -U $$POSTGRES_USER
+      timeout: 5s
+      interval: 5s
+      retries: 10
+
+  db_payment:
+    image: postgres:16.1
+    container_name: postgres-payment
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: 100
+      POSTGRES_DB: payment
+    ports:
+      - "5439:5432"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+    healthcheck:
+      test: pg_isready -q -d $$POSTGRES_DB -U $$POSTGRES_USER
+      timeout: 5s
+      interval: 5s
+      retries: 10
 

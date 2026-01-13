@@ -13,6 +13,8 @@ import ru.yandex.practicum.interaction.api.dto.store.ProductDto;
 import ru.yandex.practicum.interaction.api.exception.NotFoundException;
 import ru.yandex.practicum.shopping.store.core.model.Product;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -66,5 +68,15 @@ public class ProductService {
     private Product checkProductExist(UUID productId) {
         return repository.findById(productId)
                 .orElseThrow(() -> new NotFoundException("Товар c id = %s не найден".formatted(productId)));
+    }
+
+    @Transactional(readOnly = true)
+    public List<ProductDto> getProductsByIds(List<UUID> productIds) {
+        if (productIds == null || productIds.isEmpty()) {
+            return Collections.emptyList();
+        }
+        List<Product> products = repository.findAllById(productIds);
+
+        return mapper.toDtoList(products);
     }
 }
